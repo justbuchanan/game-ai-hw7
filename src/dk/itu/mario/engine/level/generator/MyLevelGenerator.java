@@ -67,17 +67,21 @@ class ColumnRepresentation {
 	// int initialElevation;
 	Boolean hole = false; // a hole in the floor
 	int coinCount = 0;
-	Enemy enemy = null;
-	Boolean powerUpBlock = false;
+	int coinHeight = 0;
+	int enemy = -1;
+	int powerUpHeight = 0;
 	int pipeHeight = 0; // 0 indicates no pipe
+	int cannonHeight = 0;
 
 	public ColumnRepresentation clone() {
 		ColumnRepresentation clone = new ColumnRepresentation();
 		clone.hole = hole;
 		clone.coinCount = coinCount;
+		clone.coinHeight = coinHeight;
 		clone.enemy = enemy;
-		clone.powerUpBlock = powerUpBlock;
+		clone.powerUpHeight = powerUpHeight;
 		clone.pipeHeight = pipeHeight;
+		clone.cannonHeight = cannonHeight;
 
 		return clone;
 	}
@@ -133,9 +137,35 @@ class LevelRepresentation {
 			} else if (col.hole) {
 				level.setBlock(x,levelHeight+1,Level.EMPTY);
 				level.setBlock(x,levelHeight+2,Level.EMPTY);
+			} else if (col.powerUpHeight > 0) {
+				level.setBlock(x,aboveGroundLevel-col.powerUpHeight+1,Level.BLOCK_POWERUP);
+			} else if (col.cannonHeight > 0) {
+				int topIndex = aboveGroundLevel-col.pipeHeight+1;
+
+				level.setBlock(x, topIndex, Level.CANNON_TOP);
+
+				if (topIndex != aboveGroundLevel) {
+					level.setBlock(x, aboveGroundLevel, Level.CANNON_BASE);
+
+					if (topIndex - aboveGroundLevel > 1) {
+						for (int j = aboveGroundLevel-1; j > topIndex; j--) {
+							level.setBlock(x, j, Level.CANNON_MID);
+						}
+					}
+				}
 			}
 
-			// TODO
+			if (col.enemy != -1) {
+				level.setSpriteTemplate(x, aboveGroundLevel, new SpriteTemplate(col.enemy,false));
+			}
+
+
+			if (col.coinCount > 0) {
+				int first = aboveGroundLevel-col.coinHeight+1;
+				for (int j = first; j > first + col.coinCount; j--) {
+					level.setBlock(x,j,Level.COIN);
+				}
+			}
 		}
 
 		return level;
