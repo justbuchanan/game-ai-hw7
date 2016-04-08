@@ -22,15 +22,54 @@ import dk.itu.mario.engine.sprites.Enemy;
 * left and right parts of pipes in correct positions and single "top"
 * no floating blocks out of reach
 
+* enemy types:
+	* RED_TURTLE
+	* GREEN_TURTLE
+	* GOOMPA
+	* ARMORED_TURTLE
+	* JUMP_FLOWER
+	* CANNON_BALL
+	* CHOMP_FLOWER
+
+* things:
+	* enemy
+	* coins
+	* pipe
+	* power up
+	* floating blocks
+	* grounded block(s)
+	* cannon
+	* HILL_TOP?
+
+
+* params:
+	* cannon height
+	* ground height, starting elevation
+	* width of column rep - holes and pipes will be two
+
+Constraints:
+
+hole <-> enemy
+hole <-> floating block
+cannon <-> enemy
+
+max height of reachable coins
+not too many holes in a row - does the evaluate method check for this?
+
+do pipes com in pairs?
+
 */
+
+
 
 class ColumnRepresentation {
 	// int heightDifference;
 	// int initialElevation;
-	Boolean hole; // a hole in the floor
-	int coinCount;
-	Enemy enemy;
-	Boolean powerUpBlock;
+	Boolean hole = false; // a hole in the floor
+	int coinCount = 0;
+	Enemy enemy = null;
+	Boolean powerUpBlock = false;
+	int pipeHeight = 0; // 0 indicates no pipe
 
 	public ColumnRepresentation clone() {
 		ColumnRepresentation clone = new ColumnRepresentation();
@@ -38,6 +77,7 @@ class ColumnRepresentation {
 		clone.coinCount = coinCount;
 		clone.enemy = enemy;
 		clone.powerUpBlock = powerUpBlock;
+		clone.pipeHeight = pipeHeight;
 
 		return clone;
 	}
@@ -46,32 +86,74 @@ class ColumnRepresentation {
 class LevelRepresentation {
 	int initialClearing = 15; // number of blocks to skip before making modifications
 	ArrayList<ColumnRepresentation> columns;
-	int levelHeight;
+	int levelHeight, levelWidth;
 
-	public LevelRepresentation(int height) {
+	public LevelRepresentation(int height, int width) {
 		columns = new ArrayList<ColumnRepresentation>();
 		levelHeight = height;
+		levelWidth = width;
 	}
 
-	public MyLevel generateLevel(int height) {
+	// generate level may ignore some details provided by columns in order to
+	// make the level playable
+	public MyLevel generateLevel() {
+		// this index is the first clear block above the ground
+		int aboveGroundLevel = levelHeight - 3;
+
+		MyLevel level = new MyLevel(levelWidth,levelHeight,new Random().nextLong(),1,LevelInterface.TYPE_OVERGROUND);
+
 		for (int i = 0; i < columns.size(); i++) {
 			int x = initialClearing + i;
+
+			ColumnRepresentation col = columns.get(i);
+			ColumnRepresentation prevCol = i > 0 ? columns.get(i-1) : null;
+
+			if (prevCol != null && prevCol.pipeHeight > 0) {
+				// right side of pipe
+
+				// build top of pipe
+				int topIndex = aboveGroundLevel-prevCol.pipeHeight+1;
+				level.setBlock(x,topIndex,Level.TUBE_TOP_RIGHT);
+
+				// build side of pipe
+				for (int j = aboveGroundLevel; j > topIndex; j--) {
+					level.setBlock(x,j,Level.TUBE_SIDE_RIGHT);
+				}
+			} else if (col.pipeHeight > 0) {
+				// left side of pipe
+
+				// build top of pipe
+				int topIndex = aboveGroundLevel-col.pipeHeight+1;
+				level.setBlock(x,topIndex,Level.TUBE_TOP_LEFT);
+
+				// build side of pipe
+				for (int j = aboveGroundLevel; j > topIndex; j--) {
+					level.setBlock(x,j,Level.TUBE_SIDE_LEFT);
+				}
+			} else if (col.hole) {
+				level.setBlock(x,levelHeight+1,Level.EMPTY);
+				level.setBlock(x,levelHeight+2,Level.EMPTY);
+			}
+
+			// TODO
 		}
 
-
-		// TODO
-		return new MyLevel(columns.size() + initialClearing, height);
+		return level;
 	}
 
 	// makes a deep copy
 	public LevelRepresentation clone() {
-		LevelRepresentation clone = new LevelRepresentation(levelHeight);
+		LevelRepresentation clone = new LevelRepresentation(levelHeight, levelWidth);
 		clone.initialClearing = initialClearing;
 		for (ColumnRepresentation col : columns) {
 			clone.columns.add(col.clone());
 		}
 
 		return clone;
+	}
+
+	public void mutate() {
+		// TODO: mutate
 	}
 }
 
@@ -80,10 +162,13 @@ class LevelRepresentation {
 public class MyLevelGenerator{
 
 	public static int NUM_CHILDREN = 1;
+	public static int NUM_PARENTS = 2;
 
 	public Level generateLevel(PlayerProfile playerProfile) {
 		MyLevel parent=new MyLevel(205,15,new Random().nextLong(),1,LevelInterface.TYPE_OVERGROUND);	
 		//// YOUR CODE GOES BELOW HERE ////
+
+
 
 		MyLevel bestChild = null;
 		double bestChildScore = 0;
@@ -122,7 +207,7 @@ public class MyLevelGenerator{
 		level.setBlock(31,14,Level.EMPTY);
 
 		//Create cannons
-		level.setBlock(40,11,Level.CANNON_TOP);
+		level.setBlock(40,12,Level.CANNON_TOP);
 		level.setBlock(40,12,Level.CANNON_MID);
 
 		level.setBlock(41,10,Level.CANNON_TOP);
