@@ -237,7 +237,7 @@ public class MyLevelGenerator{
 		level.setBlock(31,14,Level.EMPTY);
 
 		//Create cannons
-		level.setBlock(40,12,Level.CANNON_TOP);
+		level.setBlock(40,11,Level.CANNON_TOP);
 		level.setBlock(40,12,Level.CANNON_MID);
 
 		level.setBlock(41,10,Level.CANNON_TOP);
