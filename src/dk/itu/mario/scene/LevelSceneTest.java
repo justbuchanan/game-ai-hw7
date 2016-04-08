@@ -32,6 +32,7 @@ import dk.itu.mario.res.ResourcesManager;
 import dk.itu.mario.engine.PlayerProfile;
 import dk.itu.mario.engine.Scrooge;
 import dk.itu.mario.engine.Killer;
+import dk.itu.mario.engine.KillerCollector;
 import dk.itu.mario.engine.Jumper;
 
 public class LevelSceneTest extends LevelScene{
@@ -74,6 +75,9 @@ public class LevelSceneTest extends LevelScene{
 		        		}
 		        		else if (playerProfile.equals("Jumper") ){
 		        			p = new Jumper();
+		        		}
+		        		else if(playerProfile.equals("KillerCollector")){
+		        			p = new KillerCollector();
 		        		}
 
 		        		currentLevel = clg.generateLevel(p);
