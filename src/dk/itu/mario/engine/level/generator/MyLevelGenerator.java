@@ -94,7 +94,8 @@ class LevelRepresentation {
 
 	public LevelRepresentation(int height, int width, int blankColumns) {
 		columns = new ArrayList<ColumnRepresentation>();
-		for (int x = blankColumns; x < width; x++) columns.add(new ColumnRepresentation());
+		for (int x = blankColumns; x < width; x++)
+			columns.add(new ColumnRepresentation());
 		levelHeight = height;
 		levelWidth = width;
 		initialClearing = blankColumns;
@@ -180,6 +181,7 @@ class LevelRepresentation {
 	// makes a deep copy
 	public LevelRepresentation clone() {
 		LevelRepresentation clone = new LevelRepresentation(levelHeight, levelWidth, initialClearing);
+		clone.columns.clear();
 		for (ColumnRepresentation col : columns) {
 			clone.columns.add(col.clone());
 		}
@@ -200,19 +202,22 @@ public class MyLevelGenerator{
 	public static int NUM_PARENTS = 2;
 
 	public Level generateLevel(PlayerProfile playerProfile) {
-		MyLevel parent=new MyLevel(205,15,new Random().nextLong(),1,LevelInterface.TYPE_OVERGROUND);	
+		// MyLevel parent=new MyLevel(205,15,new Random().nextLong(),1,LevelInterface.TYPE_OVERGROUND);	
 		//// YOUR CODE GOES BELOW HERE ////
 
+		LevelRepresentation parent = createDefaultLevelRepresentation();
+		MyLevel parentLevel = parent.generateLevel();
 
+		if(parent != null) return parentLevel; // TODO: remove
 
-		MyLevel bestChild = null;
+		LevelRepresentation bestChild = null;
 		double bestChildScore = 0;
 
 		for (int i = 0; i < NUM_CHILDREN; i++) {
-			MyLevel child = parent.clone();
-			child = (MyLevel)createDefaultLevel();
+			LevelRepresentation child = parent.clone();
+			MyLevel childLevel = (MyLevel)createDefaultLevel();
 			//Evaluate the neighbor
-			double score = playerProfile.evaluateLevel(child);
+			double score = playerProfile.evaluateLevel(childLevel);
 			System.out.println("Child Score: "+score);
 
 			if (score > bestChildScore) {
@@ -222,12 +227,12 @@ public class MyLevelGenerator{
 		}
 
 		//// YOUR CODE GOES ABOVE HERE ////
-		return (Level)bestChild;
+		return (Level)bestChild.generateLevel();
 	}
 
 
 	public LevelRepresentation createDefaultLevelRepresentation() {
-		LevelRepresentation rep = new LevelRepresentation(205, 15, 15);
+		LevelRepresentation rep = new LevelRepresentation(15, 205, 15);
 
 		rep.columnAt(15).powerUpHeight = 3;
 
