@@ -155,6 +155,8 @@ class LevelRepresentation {
 		for (int i = 0; i < columns.size(); i++) {
 			int x = initialClearing + i;
 
+			int clearY = aboveGroundLevel;
+
 			ColumnRepresentation col = columns.get(i);
 			ColumnRepresentation prevCol = i > 0 ? columns.get(i-1) : null;
 
@@ -169,6 +171,8 @@ class LevelRepresentation {
 				for (int j = aboveGroundLevel; j > topIndex; j--) {
 					level.setBlock(x,j,Level.TUBE_SIDE_RIGHT);
 				}
+
+				clearY = topIndex - 1;
 			} else if (col.pipeHeight > 0) {
 				// left side of pipe
 
@@ -180,6 +184,8 @@ class LevelRepresentation {
 				for (int j = aboveGroundLevel; j > topIndex; j--) {
 					level.setBlock(x,j,Level.TUBE_SIDE_LEFT);
 				}
+
+				clearY = topIndex - 1;
 			} else if (col.hole) {
 				level.setBlock(x,aboveGroundLevel+1,Level.EMPTY);
 				level.setBlock(x,aboveGroundLevel+2,Level.EMPTY);
@@ -199,6 +205,8 @@ class LevelRepresentation {
 						}
 					}
 				}
+
+				clearY = topIndex - 1;
 			}
 
 			if (col.enemy != -1) {
@@ -207,7 +215,7 @@ class LevelRepresentation {
 
 
 			if (col.coinCount > 0) {
-				int first = aboveGroundLevel-col.coinHeight+1;
+				int first = clearY - col.coinHeight + 1;
 				for (int j = first; j > first - col.coinCount; j--) {
 					level.setBlock(x,j,Level.COIN);
 				}
