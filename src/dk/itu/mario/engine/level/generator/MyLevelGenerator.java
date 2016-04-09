@@ -178,6 +178,9 @@ class LevelRepresentation {
 
 				clearY = topIndex - 1;
 				occupied = true;
+
+				// Remove pipe from this block, it doesn't make sense
+				col.pipeHeight = 0;
 			} else if (col.pipeHeight > 0) {
 				// left side of pipe
 
