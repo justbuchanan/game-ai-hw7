@@ -92,7 +92,7 @@ class LevelRepresentation {
 	ArrayList<ColumnRepresentation> columns;
 	int levelHeight, levelWidth;
 
-	public LevelRepresentation(int height, int width, int blankColumns) {
+	public LevelRepresentation(int width, int height, int blankColumns) {
 		columns = new ArrayList<ColumnRepresentation>();
 		for (int x = blankColumns; x < width; x++)
 			columns.add(new ColumnRepresentation());
@@ -147,14 +147,14 @@ class LevelRepresentation {
 			} else if (col.powerUpHeight > 0) {
 				level.setBlock(x,aboveGroundLevel-col.powerUpHeight+1,Level.BLOCK_POWERUP);
 			} else if (col.cannonHeight > 0) {
-				int topIndex = aboveGroundLevel-col.pipeHeight+1;
+				int topIndex = aboveGroundLevel-col.cannonHeight+1;
 
 				level.setBlock(x, topIndex, Level.CANNON_TOP);
 
 				if (topIndex != aboveGroundLevel) {
 					level.setBlock(x, aboveGroundLevel, Level.CANNON_BASE);
 
-					if (topIndex - aboveGroundLevel > 1) {
+					if (aboveGroundLevel - topIndex > 1) {
 						for (int j = aboveGroundLevel-1; j > topIndex; j--) {
 							level.setBlock(x, j, Level.CANNON_MID);
 						}
@@ -169,7 +169,7 @@ class LevelRepresentation {
 
 			if (col.coinCount > 0) {
 				int first = aboveGroundLevel-col.coinHeight+1;
-				for (int j = first; j > first + col.coinCount; j--) {
+				for (int j = first; j > first - col.coinCount; j--) {
 					level.setBlock(x,j,Level.COIN);
 				}
 			}
@@ -232,7 +232,7 @@ public class MyLevelGenerator{
 
 
 	public LevelRepresentation createDefaultLevelRepresentation() {
-		LevelRepresentation rep = new LevelRepresentation(15, 205, 15);
+		LevelRepresentation rep = new LevelRepresentation(205, 15, 15);
 
 		rep.columnAt(15).powerUpHeight = 3;
 
