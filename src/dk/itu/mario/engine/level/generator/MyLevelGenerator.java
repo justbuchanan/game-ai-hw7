@@ -109,13 +109,14 @@ class ColumnRepresentation {
 			coinCount += rand.nextInt(5) - 2; // subtract 2, add 2, or something in-between
 			if (coinCount < 0) coinCount = 0;
 			if (coinHeight == 0) coinHeight = 1;
-		} else if (roll< COIN_HEIGHT_CHANCE) {
-			// TODO
+		} else if (roll < COIN_HEIGHT_CHANCE) {
+			coinHeight += rand.nextInt(5) - 2; // subtract 2, add 2, or something in-between
+			if (coinHeight < 0) coinHeight = 0;
 		} else if (roll < ENEMY_CHANCE) {
 			enemy = rand.nextInt(8) - 1; // enemy enum ranges from [0-6]
 		} else if (roll < POWER_UP_CHANCE) {
 			powerUpHeight += rand.nextInt(5) - 2; // subtract 2, add 2, or something in-between
-			if (powerUpHeight < 0) powerUpHeight = 0;
+			if (powerUpHeight < 1) powerUpHeight = 0;
 		} else if (roll < PIPE_CHANCE) {
 			pipeHeight += rand.nextInt(5) - 2; // subtract 2, add 2, or something in-between
 			if (pipeHeight < 0) pipeHeight = 0;
@@ -160,6 +161,8 @@ class LevelRepresentation {
 			ColumnRepresentation col = columns.get(i);
 			ColumnRepresentation prevCol = i > 0 ? columns.get(i-1) : null;
 
+			Boolean occupied = false;
+
 			if (prevCol != null && prevCol.pipeHeight > 0) {
 				// right side of pipe
 
@@ -173,6 +176,7 @@ class LevelRepresentation {
 				}
 
 				clearY = topIndex - 1;
+				occupied = true;
 			} else if (col.pipeHeight > 0) {
 				// left side of pipe
 
@@ -186,9 +190,11 @@ class LevelRepresentation {
 				}
 
 				clearY = topIndex - 1;
+				occupied = true;
 			} else if (col.hole) {
 				level.setBlock(x,aboveGroundLevel+1,Level.EMPTY);
 				level.setBlock(x,aboveGroundLevel+2,Level.EMPTY);
+				occupied = true;
 			} else if (col.powerUpHeight > 0) {
 				level.setBlock(x,aboveGroundLevel-col.powerUpHeight+1,Level.BLOCK_POWERUP);
 			} else if (col.cannonHeight > 0) {
@@ -207,9 +213,10 @@ class LevelRepresentation {
 				}
 
 				clearY = topIndex - 1;
+				occupied = true;
 			}
 
-			if (col.enemy != -1) {
+			if (col.enemy != -1 && !occupied) {
 				level.setSpriteTemplate(x, aboveGroundLevel, new SpriteTemplate(col.enemy,false));
 			}
 
