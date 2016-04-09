@@ -114,9 +114,10 @@ class ColumnRepresentation {
 			if (coinHeight < 0) coinHeight = 0;
 		} else if (roll < ENEMY_CHANCE) {
 			enemy = rand.nextInt(8) - 1; // enemy enum ranges from [0-6]
+			if (enemy == 5) enemy = 6;
 		} else if (roll < POWER_UP_CHANCE) {
 			powerUpHeight += rand.nextInt(5) - 2; // subtract 2, add 2, or something in-between
-			if (powerUpHeight < 1) powerUpHeight = 0;
+			if (powerUpHeight <= 1) powerUpHeight = 0;
 		} else if (roll < PIPE_CHANCE) {
 			pipeHeight += rand.nextInt(5) - 2; // subtract 2, add 2, or something in-between
 			if (pipeHeight < 0) pipeHeight = 0;
