@@ -142,8 +142,8 @@ class LevelRepresentation {
 					level.setBlock(x,j,Level.TUBE_SIDE_LEFT);
 				}
 			} else if (col.hole) {
-				level.setBlock(x,levelHeight+1,Level.EMPTY);
-				level.setBlock(x,levelHeight+2,Level.EMPTY);
+				level.setBlock(x,aboveGroundLevel+1,Level.EMPTY);
+				level.setBlock(x,aboveGroundLevel+2,Level.EMPTY);
 			} else if (col.powerUpHeight > 0) {
 				level.setBlock(x,aboveGroundLevel-col.powerUpHeight+1,Level.BLOCK_POWERUP);
 			} else if (col.cannonHeight > 0) {
