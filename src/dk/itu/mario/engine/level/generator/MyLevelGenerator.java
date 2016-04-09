@@ -221,6 +221,12 @@ public class MyLevelGenerator{
 	}
 
 
+	public LevelRepresentation createDefaultLevelRepresentation() {
+		LevelRepresentation rep = new LevelRepresentation(205, 15);
+		return rep;
+	}
+
+
 	public Level createDefaultLevel() {
 		MyLevel level=new MyLevel(205,15,new Random().nextLong(),1,LevelInterface.TYPE_OVERGROUND);	
 
