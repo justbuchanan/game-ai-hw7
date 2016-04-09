@@ -88,14 +88,20 @@ class ColumnRepresentation {
 }
 
 class LevelRepresentation {
-	int initialClearing = 15; // number of blocks to skip before making modifications
+	int initialClearing; // number of blocks to skip before making modifications
 	ArrayList<ColumnRepresentation> columns;
 	int levelHeight, levelWidth;
 
-	public LevelRepresentation(int height, int width) {
+	public LevelRepresentation(int height, int width, int blankColumns) {
 		columns = new ArrayList<ColumnRepresentation>();
+		for (int x = blankColumns; x < width; x++) columns.add(new ColumnRepresentation());
 		levelHeight = height;
 		levelWidth = width;
+		initialClearing = blankColumns;
+	}
+
+	ColumnRepresentation columnAt(int x) {
+		return columns.get(x - initialClearing);
 	}
 
 	// generate level may ignore some details provided by columns in order to
@@ -173,8 +179,7 @@ class LevelRepresentation {
 
 	// makes a deep copy
 	public LevelRepresentation clone() {
-		LevelRepresentation clone = new LevelRepresentation(levelHeight, levelWidth);
-		clone.initialClearing = initialClearing;
+		LevelRepresentation clone = new LevelRepresentation(levelHeight, levelWidth, initialClearing);
 		for (ColumnRepresentation col : columns) {
 			clone.columns.add(col.clone());
 		}
@@ -222,7 +227,25 @@ public class MyLevelGenerator{
 
 
 	public LevelRepresentation createDefaultLevelRepresentation() {
-		LevelRepresentation rep = new LevelRepresentation(205, 15);
+		LevelRepresentation rep = new LevelRepresentation(205, 15, 15);
+
+		rep.columnAt(15).powerUpHeight = 3;
+
+		rep.columnAt(20).enemy = Enemy.ENEMY_GREEN_KOOPA;
+
+		rep.columnAt(30).hole = true;
+		rep.columnAt(31).hole = true;
+
+		rep.columnAt(40).cannonHeight = 2;
+		rep.columnAt(41).cannonHeight = 3;
+
+		rep.columnAt(50).pipeHeight = 2;
+		rep.columnAt(53).pipeHeight = 3;
+
+		rep.columnAt(55).coinCount = 1; rep.columnAt(55).coinHeight = 4;
+		rep.columnAt(56).coinCount = 1; rep.columnAt(56).coinHeight = 4;
+		rep.columnAt(57).coinCount = 1; rep.columnAt(57).coinHeight = 4;
+
 		return rep;
 	}
 
