@@ -87,15 +87,14 @@ class ColumnRepresentation {
 	}
 
 	void mutate(Random rand, double multiplier) {
-		double HOLE_CHANCE = 0.02 * multiplier;
-		double COIN_COUNT_CHANCE = 0.02 * multiplier + HOLE_CHANCE;
-		double COIN_HEIGHT_CHANCE = 0.02 * multiplier + COIN_COUNT_CHANCE;
-		double ENEMY_CHANCE = 0.02 * multiplier + COIN_HEIGHT_CHANCE;
-		double POWER_UP_CHANCE = 0.02 * multiplier + ENEMY_CHANCE;
-		double PIPE_CHANCE = 0.02 * multiplier + POWER_UP_CHANCE;
-		double CANNON_CHANCE = 0.02 * multiplier + PIPE_CHANCE;
+		double HOLE_CHANCE = 0.001 * multiplier;
+		double COIN_COUNT_CHANCE = 0.004 * multiplier + HOLE_CHANCE;
+		double COIN_HEIGHT_CHANCE = 0.003 * multiplier + COIN_COUNT_CHANCE;
+		double ENEMY_CHANCE = 0.001 * multiplier + COIN_HEIGHT_CHANCE;
+		double POWER_UP_CHANCE = 0.002 * multiplier + ENEMY_CHANCE;
+		double PIPE_CHANCE = 0.001 * multiplier + POWER_UP_CHANCE;
+		double CANNON_CHANCE = 0.001 * multiplier + PIPE_CHANCE;
 
-		// TODO
 		double roll = rand.nextDouble();
 
 		if (roll < HOLE_CHANCE) {
@@ -106,11 +105,14 @@ class ColumnRepresentation {
 				pipeHeight = 0;
 				cannonHeight = 0;
 			}
-		} else if (roll < HOLE_CHANCE) {
+		} else if (roll < COIN_COUNT_CHANCE) {
 			coinCount += rand.nextInt(5) - 2; // subtract 2, add 2, or something in-between
 			if (coinCount < 0) coinCount = 0;
+			if (coinHeight == 0) coinHeight = 1;
 		} else if (roll< COIN_HEIGHT_CHANCE) {
 			// TODO
+		} else if (roll < ENEMY_CHANCE) {
+			enemy = rand.nextInt(8) - 1; // enemy enum ranges from [0-6]
 		} else if (roll < POWER_UP_CHANCE) {
 			powerUpHeight += rand.nextInt(5) - 2; // subtract 2, add 2, or something in-between
 			if (powerUpHeight < 0) powerUpHeight = 0;
@@ -217,7 +219,7 @@ class LevelRepresentation {
 
 	// makes a deep copy
 	public LevelRepresentation clone() {
-		LevelRepresentation clone = new LevelRepresentation(levelHeight, levelWidth, initialClearing);
+		LevelRepresentation clone = new LevelRepresentation(levelWidth, levelHeight, initialClearing);
 		clone.columns.clear();
 		for (ColumnRepresentation col : columns) {
 			clone.columns.add(col.clone());
@@ -237,8 +239,8 @@ class LevelRepresentation {
 
 public class MyLevelGenerator{
 
-	public static int NUM_CHILDREN = 20;
-	public static int MAX_GENERATIONS = 20;
+	public static int NUM_CHILDREN = 30;
+	public static int MAX_GENERATIONS = 200;
 
 	public Level generateLevel(PlayerProfile playerProfile) {
 		Random rand = new Random();
@@ -257,8 +259,6 @@ public class MyLevelGenerator{
 				double score = playerProfile.evaluateLevel(child.generateLevel());
 				System.out.println("  Child Score: "+score);
 
-				if (child) return child.generateLevel();
-
 				if (score > bestScore) {
 					bestRep = child;
 					bestScore = score;
@@ -269,6 +269,11 @@ public class MyLevelGenerator{
 			parent = bestRep;
 
 			System.out.println("Best score so far: " + bestScore);
+
+			if (bestScore > 0.8) {
+				System.out.println("Score exceeds 0.8, done");
+				break;
+			}
 		}
 
 		//// YOUR CODE GOES ABOVE HERE ////
