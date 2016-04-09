@@ -85,6 +85,43 @@ class ColumnRepresentation {
 
 		return clone;
 	}
+
+	void mutate(Random rand, double multiplier) {
+		double HOLE_CHANCE = 0.02 * multiplier;
+		double COIN_COUNT_CHANCE = 0.02 * multiplier + HOLE_CHANCE;
+		double COIN_HEIGHT_CHANCE = 0.02 * multiplier + COIN_COUNT_CHANCE;
+		double ENEMY_CHANCE = 0.02 * multiplier + COIN_HEIGHT_CHANCE;
+		double POWER_UP_CHANCE = 0.02 * multiplier + ENEMY_CHANCE;
+		double PIPE_CHANCE = 0.02 * multiplier + POWER_UP_CHANCE;
+		double CANNON_CHANCE = 0.02 * multiplier + PIPE_CHANCE;
+
+		// TODO
+		double roll = rand.nextDouble();
+
+		if (roll < HOLE_CHANCE) {
+			hole = !hole;
+			if (hole) {
+				enemy = -1;
+				powerUpHeight = 0;
+				pipeHeight = 0;
+				cannonHeight = 0;
+			}
+		} else if (roll < HOLE_CHANCE) {
+			coinCount += rand.nextInt(5) - 2; // subtract 2, add 2, or something in-between
+			if (coinCount < 0) coinCount = 0;
+		} else if (roll< COIN_HEIGHT_CHANCE) {
+			// TODO
+		} else if (roll < POWER_UP_CHANCE) {
+			powerUpHeight += rand.nextInt(5) - 2; // subtract 2, add 2, or something in-between
+			if (powerUpHeight < 0) powerUpHeight = 0;
+		} else if (roll < PIPE_CHANCE) {
+			pipeHeight += rand.nextInt(5) - 2; // subtract 2, add 2, or something in-between
+			if (pipeHeight < 0) pipeHeight = 0;
+		} else if (roll < CANNON_CHANCE) {
+			cannonHeight += rand.nextInt(5) - 2; // subtract 2, add 2, or something in-between
+			if (cannonHeight < 0) cannonHeight = 0;
+		}
+	}
 }
 
 class LevelRepresentation {
@@ -189,8 +226,10 @@ class LevelRepresentation {
 		return clone;
 	}
 
-	public void mutate() {
-		// TODO: mutate
+	public void mutate(Random rand, double multiplier) {
+		for (ColumnRepresentation col : columns) {
+			col.mutate(rand, multiplier);
+		}
 	}
 }
 
@@ -198,36 +237,42 @@ class LevelRepresentation {
 
 public class MyLevelGenerator{
 
-	public static int NUM_CHILDREN = 1;
-	public static int NUM_PARENTS = 2;
+	public static int NUM_CHILDREN = 20;
+	public static int MAX_GENERATIONS = 20;
 
 	public Level generateLevel(PlayerProfile playerProfile) {
-		// MyLevel parent=new MyLevel(205,15,new Random().nextLong(),1,LevelInterface.TYPE_OVERGROUND);	
-		//// YOUR CODE GOES BELOW HERE ////
+		Random rand = new Random();
 
 		LevelRepresentation parent = createDefaultLevelRepresentation();
-		MyLevel parentLevel = parent.generateLevel();
 
-		if(parent != null) return parentLevel; // TODO: remove
+		LevelRepresentation bestRep = parent;
+		double bestScore = playerProfile.evaluateLevel(parent.generateLevel());
 
-		LevelRepresentation bestChild = null;
-		double bestChildScore = 0;
+		for (int g = 0; g < MAX_GENERATIONS; g++) {
+			System.out.println("Generation " + g);
+			for (int i = 0; i < NUM_CHILDREN; i++) {
+				LevelRepresentation child = parent.clone();
+				child.mutate(rand, 1);
+				//Evaluate the neighbor
+				double score = playerProfile.evaluateLevel(child.generateLevel());
+				System.out.println("  Child Score: "+score);
 
-		for (int i = 0; i < NUM_CHILDREN; i++) {
-			LevelRepresentation child = parent.clone();
-			MyLevel childLevel = (MyLevel)createDefaultLevel();
-			//Evaluate the neighbor
-			double score = playerProfile.evaluateLevel(childLevel);
-			System.out.println("Child Score: "+score);
+				if (child) return child.generateLevel();
 
-			if (score > bestChildScore) {
-				bestChild = child;
-				bestChildScore = score;
+				if (score > bestScore) {
+					bestRep = child;
+					bestScore = score;
+					System.out.println("  Found new best!");
+				}
 			}
+
+			parent = bestRep;
+
+			System.out.println("Best score so far: " + bestScore);
 		}
 
 		//// YOUR CODE GOES ABOVE HERE ////
-		return (Level)bestChild.generateLevel();
+		return (Level)bestRep.generateLevel();
 	}
 
 
