@@ -256,37 +256,66 @@ class LevelRepresentation {
 
 
 
+
+
+class MyPair implements Comparable<MyPair> {
+	double score;
+	LevelRepresentation rep;
+
+	public MyPair(LevelRepresentation r, double s) {
+		rep = r;
+		score = s;
+	}
+
+	// Returns a negative integer, zero, or a positive integer as this object is
+	// less than, equal to, or greater than the specified object.
+	public int compareTo(MyPair o) {
+		return Double.valueOf(score).compareTo(o.score);
+	}
+}
+
+
+
 public class MyLevelGenerator{
 
-	public static int NUM_CHILDREN = 30;
+	public static int POPULATION_SIZE = 15;
 	public static int MAX_GENERATIONS = 200;
 
 	public Level generateLevel(PlayerProfile playerProfile) {
 		Random rand = new Random();
 
-		LevelRepresentation parent = createDefaultLevelRepresentation();
+		ArrayList<MyPair> population = new ArrayList<MyPair>();
 
-		LevelRepresentation bestRep = parent;
-		double bestScore = playerProfile.evaluateLevel(parent.generateLevel());
+		// create initial population
+		LevelRepresentation parent = createDefaultLevelRepresentation();
+		double score = playerProfile.evaluateLevel(parent.generateLevel());
+		for (int i = 0; i < POPULATION_SIZE; i++) {
+			population.add(new MyPair(parent, score));
+		}
 
 		for (int g = 0; g < MAX_GENERATIONS; g++) {
 			System.out.println("Generation " + g);
-			for (int i = 0; i < NUM_CHILDREN; i++) {
-				LevelRepresentation child = parent.clone();
+
+			ArrayList<MyPair> newGeneration = new ArrayList<MyPair>();
+
+			for (MyPair pair : population) {
+				LevelRepresentation child = pair.rep.clone();
 				child.mutate(rand, 1);
-				//Evaluate the neighbor
-				double score = playerProfile.evaluateLevel(child.generateLevel());
+
+				score = playerProfile.evaluateLevel(child.generateLevel());
 				System.out.println("  Child Score: "+score);
 
-				if (score > bestScore) {
-					bestRep = child;
-					bestScore = score;
-					System.out.println("  Found new best!");
-				}
+				newGeneration.add(new MyPair(child, score));
 			}
 
-			parent = bestRep;
+			population.addAll(newGeneration);
 
+			Collections.sort(population, Collections.reverseOrder());
+
+			// thin the herd
+			while (population.size() > POPULATION_SIZE) population.remove(population.size() - 1);
+
+			double bestScore = population.get(0).score;
 			System.out.println("Best score so far: " + bestScore);
 
 			if (bestScore > 0.8) {
@@ -296,7 +325,7 @@ public class MyLevelGenerator{
 		}
 
 		//// YOUR CODE GOES ABOVE HERE ////
-		return (Level)bestRep.generateLevel();
+		return (Level)population.get(0).rep.generateLevel();
 	}
 
 
