@@ -279,7 +279,7 @@ class MyPair implements Comparable<MyPair> {
 public class MyLevelGenerator{
 
 	public static int POPULATION_SIZE = 15;
-	public static int MAX_GENERATIONS = 200;
+	public static int MAX_GENERATIONS = 300;
 
 	public Level generateLevel(PlayerProfile playerProfile) {
 		Random rand = new Random();
@@ -300,7 +300,7 @@ public class MyLevelGenerator{
 
 			for (MyPair pair : population) {
 				LevelRepresentation child = pair.rep.clone();
-				child.mutate(rand, 1);
+				child.mutate(rand, 2);
 
 				score = playerProfile.evaluateLevel(child.generateLevel());
 				System.out.println("  Child Score: "+score);
