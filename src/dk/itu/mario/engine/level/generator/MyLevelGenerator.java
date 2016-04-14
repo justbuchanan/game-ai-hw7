@@ -327,7 +327,26 @@ public class MyLevelGenerator{
 		}
 
 		//// YOUR CODE GOES ABOVE HERE ////
-		return (Level)population.get(0).rep.generateLevel();
+		Level level = (Level)population.get(0).rep.generateLevel();
+
+		// System.out.println("------------------------------------------");
+		// for (int x = 0; x < level.getWidth(); x++) {
+		// 	for (int y = 0; y < level.getHeight(); y++) {
+		// 		byte b = level.getBlock(x,y);
+		// 		if (b == Level.TUBE_TOP_LEFT) {
+		// 			System.out.print('L');
+		// 		} else if (b == Level.TUBE_TOP_RIGHT) {
+		// 			System.out.print('R');
+		// 		} else {
+		// 			System.out.print(b);
+		// 		}
+		// 	}
+		// 	System.out.println();
+		// }
+		// System.out.println("------------------------------------------");
+
+
+		return level;
 	}
 
 
